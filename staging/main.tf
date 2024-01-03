@@ -10,7 +10,7 @@ resource "aws_vpc" "staging" {
     }
 }
 
-
+#public Subnet 
 resource "aws_subnet" "public_sn" {
   vpc_id = aws_vpc.staging.id
   cidr_block = "10.1.1.0/24"
@@ -20,7 +20,7 @@ resource "aws_subnet" "public_sn" {
     Purpose = "To delpoy the Public servers"
   }
 }
-
+#private Subnet 
 resource "aws_subnet" "private_sn" {
   vpc_id = aws_vpc.staging.id
   cidr_block = "10.1.2.0/24"
@@ -30,9 +30,6 @@ resource "aws_subnet" "private_sn" {
     Purpose = "To delpoy the private server"
   }
 }
-
-
-
 
 ###IGW
 resource "aws_internet_gateway" "igw" {
@@ -48,7 +45,6 @@ resource "aws_eip" "eip" {
   domain = "vpc"
 }
 
-
 # NGW
 resource "aws_nat_gateway" "ngw" {
   allocation_id = aws_eip.eip.id
@@ -61,7 +57,7 @@ resource "aws_nat_gateway" "ngw" {
 
 
 ## Route table for Staging VPC
-resource "aws_route_table" "public-rt" {
+resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.staging.id
 
   route {
@@ -76,7 +72,7 @@ resource "aws_route_table" "public-rt" {
 
 
 ##Priver RT
-resource "aws_route_table" "private-rt" {
+resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.staging.id
 
   route {
@@ -87,4 +83,42 @@ resource "aws_route_table" "private-rt" {
   tags = {
     Name = "Staging Private Route table"
   }
+}
+
+
+#SG
+resource "aws_security_group" "sg" {
+  name = "Staging VPC Security Group"
+  description = "Allow TLS inbound traffic"
+  vpc_id = aws_vpc.staging
+
+  ingress {
+    description = "TLS from VPC"
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "Staging VPC SG"
+  }
+}
+
+resource "aws_route_table_association" "public_rt" {
+  subnet_id = aws_subnet.public_sn.id
+  route_table_id = aws_route_table.public_rt
+  
+}
+
+
+resource "aws_route_table_association" "privare_rt" {
+  subnet_id = aws_subnet.private_sn.id
+  route_table_id = aws_route_table.private_rt
+  
 }
