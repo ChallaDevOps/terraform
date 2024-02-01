@@ -70,7 +70,7 @@ resource "aws_route_table" "pri-rt" {
   vpc_id = aws_vpc.charani.id
 
   route {
-    cidr_block = "192.168.2.0/24"
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_nat_gateway.ngw.id
   }
 
@@ -91,15 +91,21 @@ resource "aws_security_group" "charani-sg" {
     from_port       = 0
     to_port         = 0
     protocol        = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks     = ["0.0.0.0/0"]
   }
    ingress {
     from_port       = 22
     to_port         = 22
     protocol        = "tcp"
-    cidr_blocks      = [aws_vpc.charani.cidr_block]
+    cidr_blocks     = ["0.0.0.0/0"]
   }
    ingress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    cidr_blocks      = [aws_vpc.charani.cidr_block]
+  }
+  ingress {
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
