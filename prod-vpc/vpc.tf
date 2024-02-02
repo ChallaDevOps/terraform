@@ -15,6 +15,9 @@ resource "aws_subnet" "pub-sn" {
     tags = {
       Name = "Public SN"
     } 
+    depends_on = [ 
+        aws_vpc.charani
+     ]
 }
 
 
@@ -26,6 +29,7 @@ resource "aws_subnet" "pri-sn" {
     tags = {
       Name = "Private SN"
     } 
+    depends_on = [ aws_vpc.charani ]
 }
 
 resource "aws_internet_gateway" "gw" {
@@ -34,6 +38,7 @@ resource "aws_internet_gateway" "gw" {
   tags = {
     Name = "Prod-IGW"
   }
+  depends_on = [ aws_vpc.charani ]
 }
 
 resource "aws_eip" "lb" {
@@ -47,6 +52,7 @@ resource "aws_nat_gateway" "ngw" {
   tags = {
     Name = "Prod NAT Gateway"
   }
+  depends_on = [ aws_vpc.charani ]
 
 #   # To ensure proper ordering, it is recommended to add an explicit dependency
 #   # on the Internet Gateway for the VPC.
@@ -64,6 +70,7 @@ resource "aws_route_table" "pub-rt" {
   tags = {
     Name = "Prod public rt"
   }
+  depends_on = [ aws_vpc.charani ]
 }
 
 resource "aws_route_table" "pri-rt" {
@@ -77,6 +84,11 @@ resource "aws_route_table" "pri-rt" {
   tags = {
     Name = "Prod private rt"
   }
+  depends_on = [ 
+      aws_vpc.charani,
+      aws_subnet.pri-sn,
+    
+    ]
 }
 
 

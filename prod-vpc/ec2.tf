@@ -16,6 +16,12 @@ resource "aws_instance" "ec2-server" {
     Name = "Production Terrafotrm Server-${count.index+1}"
 
   }
+  depends_on = [ 
+      aws_vpc.charani,
+      aws_subnet.pub-sn,
+      aws_security_group.charani-sg,
+      aws_route_table.pub-rt
+   ]
 }
 
 
